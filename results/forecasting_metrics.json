@@ -1,0 +1,39 @@
+{
+  "naive": {
+    "mae": 6368.284090909091,
+    "mae_ci": {
+      "point_estimate": 6368.284090909091,
+      "ci_low": 5641.897443181819,
+      "ci_high": 7100.781107954545,
+      "n_resamples": 2000
+    },
+    "n_errors_pooled": 176
+  },
+  "seasonal_naive": {
+    "mae": 21524.8125,
+    "mae_ci": {
+      "point_estimate": 21524.8125,
+      "ci_low": 18463.10340909091,
+      "ci_high": 24933.289914772726,
+      "n_resamples": 2000
+    },
+    "n_errors_pooled": 176
+  },
+  "holt_winters": {
+    "mae": 4663.788705563336,
+    "mae_ci": {
+      "point_estimate": 4663.788705563336,
+      "ci_low": 4037.0243686616486,
+      "ci_high": 5351.522368136035,
+      "n_resamples": 2000
+    },
+    "n_errors_pooled": 176
+  },
+  "best_vs_naive_significance": {
+    "observed_diff": 1704.4953853457546,
+    "p_value": 0.0,
+    "significant_at_0.05": true,
+    "n_resamples": 2000
+  },
+  "selected_model": "holt_winters"
+}

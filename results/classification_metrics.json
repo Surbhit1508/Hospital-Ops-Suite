@@ -1,0 +1,36 @@
+{
+  "logistic_regression": {
+    "accuracy": 0.6257554168918587,
+    "accuracy_ci": {
+      "point_estimate": 0.6257554168918587,
+      "ci_low": 0.61907335527932,
+      "ci_high": 0.6326340097282955,
+      "n_resamples": 10000
+    },
+    "roc_auc": 0.6693887920937378,
+    "pr_auc": 0.6249491999939801,
+    "f1": 0.531232691242538,
+    "roc_auc_val": 0.6723635621091003
+  },
+  "gradient_boosting": {
+    "accuracy": 0.6364663685943104,
+    "accuracy_ci": {
+      "point_estimate": 0.6364663685943104,
+      "ci_low": 0.6299317053996953,
+      "ci_high": 0.6432466958187982,
+      "n_resamples": 10000
+    },
+    "roc_auc": 0.684897288639096,
+    "pr_auc": 0.6429345572344999,
+    "f1": 0.555161426080683,
+    "roc_auc_val": 0.6853836518013547
+  },
+  "gradient_boosting_vs_logistic_regression": {
+    "observed_diff": 0.010710951702451732,
+    "p_value": 0.0,
+    "significant_at_0.05": true,
+    "n_resamples": 10000
+  },
+  "selected_model": "gradient_boosting",
+  "selection_method": "highest ROC-AUC on held-out validation split (not the test set)"
+}

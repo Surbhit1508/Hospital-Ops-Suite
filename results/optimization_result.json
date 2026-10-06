@@ -1,0 +1,90 @@
+{
+  "status": "Optimal",
+  "expected_weekly_admissions": 138.4,
+  "demand_pressure_multiplier": 0.9066,
+  "departments": {
+    "Cardiology": {
+      "required_beds": 10.97,
+      "allocated_beds": 10.97,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.88,
+      "case_mix_share": 0.1575,
+      "avg_length_of_stay_days": 3.52
+    },
+    "Orthopedics": {
+      "required_beds": 12.96,
+      "allocated_beds": 12.96,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.58,
+      "case_mix_share": 0.1654,
+      "avg_length_of_stay_days": 3.96
+    },
+    "Nephrology": {
+      "required_beds": 4.36,
+      "allocated_beds": 4.36,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.75,
+      "case_mix_share": 0.0433,
+      "avg_length_of_stay_days": 5.09
+    },
+    "Gastroenterology": {
+      "required_beds": 11.15,
+      "allocated_beds": 11.15,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.7,
+      "case_mix_share": 0.122,
+      "avg_length_of_stay_days": 4.62
+    },
+    "Psychiatry": {
+      "required_beds": 4.04,
+      "allocated_beds": 4.04,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.55,
+      "case_mix_share": 0.0315,
+      "avg_length_of_stay_days": 6.49
+    },
+    "Surgery": {
+      "required_beds": 17.53,
+      "allocated_beds": 17.53,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.9,
+      "case_mix_share": 0.185,
+      "avg_length_of_stay_days": 4.79
+    },
+    "Obstetrics/Gynecology": {
+      "required_beds": 6.43,
+      "allocated_beds": 6.43,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.68,
+      "case_mix_share": 0.1063,
+      "avg_length_of_stay_days": 3.06
+    },
+    "Urology": {
+      "required_beds": 4.46,
+      "allocated_beds": 4.46,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.6,
+      "case_mix_share": 0.0669,
+      "avg_length_of_stay_days": 3.37
+    },
+    "General/Internal Medicine": {
+      "required_beds": 5.62,
+      "allocated_beds": 5.62,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 0.45,
+      "case_mix_share": 0.063,
+      "avg_length_of_stay_days": 4.51
+    },
+    "Emergency": {
+      "required_beds": 5.1,
+      "allocated_beds": 5.1,
+      "shortfall_beds": 0.0,
+      "urgency_weight": 1.0,
+      "case_mix_share": 0.0591,
+      "avg_length_of_stay_days": 4.37
+    }
+  },
+  "total_beds_available": 131,
+  "total_icu_beds_available": 13,
+  "objective_urgency_weighted_shortfall": 0.0
+}

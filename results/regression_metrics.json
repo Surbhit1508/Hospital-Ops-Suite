@@ -1,0 +1,34 @@
+{
+  "linear_regression": {
+    "mae": 1.8154857255346848,
+    "mae_ci": {
+      "point_estimate": 1.8154857255346848,
+      "ci_low": 1.794454741901458,
+      "ci_high": 1.836808389457201,
+      "n_resamples": 10000
+    },
+    "rmse": 2.387402582880636,
+    "r2": 0.3588970285326787,
+    "mae_val": 1.812231442512523
+  },
+  "gradient_boosting": {
+    "mae": 1.73825008350808,
+    "mae_ci": {
+      "point_estimate": 1.73825008350808,
+      "ci_low": 1.7173615943120037,
+      "ci_high": 1.7594954643558167,
+      "n_resamples": 10000
+    },
+    "rmse": 2.2989914379126097,
+    "r2": 0.4055009311630503,
+    "mae_val": 1.7309904768608149
+  },
+  "gradient_boosting_vs_linear_regression": {
+    "observed_diff": 0.07723564202660471,
+    "p_value": 0.0,
+    "significant_at_0.05": true,
+    "n_resamples": 10000
+  },
+  "selected_model": "gradient_boosting",
+  "selection_method": "lowest MAE on held-out validation split (not the test set)"
+}

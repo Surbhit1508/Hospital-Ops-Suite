@@ -1,0 +1,37 @@
+{
+  "linear_svm": {
+    "accuracy": 0.32,
+    "macro_f1": 0.19115753320856635,
+    "macro_f1_val": 0.25828084699165793,
+    "macro_f1_ci": {
+      "point_estimate": 0.19115753320856635,
+      "ci_low": 0.15834261468704938,
+      "ci_high": 0.2313654886332049,
+      "n_resamples": 2000
+    }
+  },
+  "linear_svm_balanced": {
+    "accuracy": 0.334,
+    "macro_f1": 0.2792830528800098,
+    "macro_f1_val": 0.40033946786293423,
+    "macro_f1_ci": {
+      "point_estimate": 0.2792830528800098,
+      "ci_low": 0.23114229694138783,
+      "ci_high": 0.33170214886636673,
+      "n_resamples": 2000
+    }
+  },
+  "num_classes": 40,
+  "num_train": 3599,
+  "num_test": 500,
+  "selected_model": "linear_svm_balanced",
+  "selection_method": "highest macro-F1 on held-out validation split (not the test set)",
+  "accuracy": 0.334,
+  "macro_f1": 0.2792830528800098,
+  "macro_f1_ci": {
+    "point_estimate": 0.2792830528800098,
+    "ci_low": 0.23114229694138783,
+    "ci_high": 0.33170214886636673,
+    "n_resamples": 2000
+  }
+}
