@@ -1,0 +1,96 @@
+{% import "_icons.html" as icons %}
+
+{% if not pipeline_has_run %}
+<div class="bg-amber-50 border border-amber-300 text-amber-800 rounded-lg p-4 mb-6 flex items-start gap-2">
+    {{ icons.icon_warning("w-5 h-5 shrink-0 mt-0.5") }}
+    <div>
+        No results yet. Run <code class="bg-amber-100 px-1 rounded">python -m src.fetch_data</code> then
+        <code class="bg-amber-100 px-1 rounded">python -m src.pipeline.orchestrate</code>, or click the button below.
+    </div>
+</div>
+{% endif %}
+
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-lg font-bold text-slate-800">Pipeline Summary</h2>
+        <p class="text-xs text-slate-500">Live results from the most recent full pipeline run.</p>
+    </div>
+    <button
+        id="run-pipeline-btn"
+        hx-post="/run-pipeline"
+        hx-target="#dashboard-content"
+        hx-swap="outerHTML"
+        hx-indicator="#pipeline-loading"
+        class="bg-slate-900 hover:bg-slate-700 transition text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm">
+        &#8635; Re-run full pipeline
+    </button>
+</div>
+<div id="pipeline-loading" class="htmx-indicator text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2.5 mb-4">
+    Running all five modules end to end (roughly 1-2 minutes)&hellip;
+</div>
+
+{% if pipeline_has_run %}
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+    <a href="#classification" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border-t-4 border-indigo-500">
+        <div class="flex items-center gap-2 text-indigo-500 mb-1">{{ icons.icon_shield("w-4 h-4") }}<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Classification</span></div>
+        <div class="text-2xl font-extrabold text-slate-900">{{ "%.3f"|format(classification[classification.selected_model].roc_auc) }}</div>
+        <div class="text-xs text-slate-400">ROC-AUC &middot; {{ classification.selected_model.replace("_", " ") }}</div>
+    </a>
+    <a href="#regression" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border-t-4 border-violet-500">
+        <div class="flex items-center gap-2 text-violet-500 mb-1">{{ icons.icon_clock("w-4 h-4") }}<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Regression</span></div>
+        <div class="text-2xl font-extrabold text-slate-900">{{ "%.2f"|format(regression[regression.selected_model].mae) }}d</div>
+        <div class="text-xs text-slate-400">MAE &middot; length of stay</div>
+    </a>
+    <a href="#nlp" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border-t-4 border-emerald-500">
+        <div class="flex items-center gap-2 text-emerald-500 mb-1">{{ icons.icon_document("w-4 h-4") }}<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">NLP</span></div>
+        <div class="text-2xl font-extrabold text-slate-900">{{ "%.3f"|format(nlp.macro_f1) }}</div>
+        <div class="text-xs text-slate-400">Macro-F1 &middot; {{ nlp.num_classes }} specialties</div>
+    </a>
+    <a href="#forecasting" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border-t-4 border-amber-500">
+        <div class="flex items-center gap-2 text-amber-500 mb-1">{{ icons.icon_trending_up("w-4 h-4") }}<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Forecasting</span></div>
+        <div class="text-2xl font-extrabold text-slate-900">{{ "%.0f"|format(forecasting[forecasting.selected_model].mae) }}</div>
+        <div class="text-xs text-slate-400">MAE &middot; {{ forecasting.selected_model.replace("_", " ") }}</div>
+    </a>
+    <a href="#optimization" class="block bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border-t-4 border-rose-500">
+        <div class="flex items-center gap-2 text-rose-500 mb-1">{{ icons.icon_adjustments("w-4 h-4") }}<span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Optimization</span></div>
+        <div class="text-2xl font-extrabold text-slate-900 flex items-center gap-1.5">
+            {{ optimization.status }}
+            {% if optimization.status == "Optimal" %}
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+            {% endif %}
+        </div>
+        <div class="text-xs text-slate-400">{{ optimization.expected_weekly_admissions }} adm/wk scenario</div>
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm p-4 mb-8">
+    <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Real-time capacity utilization (optimization result)</div>
+    <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+            <div class="flex justify-between text-xs text-slate-500 mb-1">
+                <span>Staffed beds</span>
+                <span>{{ optimization_beds_used }} / {{ optimization.total_beds_available }}</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5">
+                <div class="bg-indigo-500 h-2.5 rounded-full" style="width: {{ (optimization_beds_used / optimization.total_beds_available * 100)|round(1) }}%"></div>
+            </div>
+        </div>
+        <div>
+            <div class="flex justify-between text-xs text-slate-500 mb-1">
+                <span>ICU-equivalent beds</span>
+                <span>{{ optimization_icu_used }} / {{ optimization.total_icu_beds_available }}</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5">
+                <div class="bg-rose-500 h-2.5 rounded-full" style="width: {{ (optimization_icu_used / optimization.total_icu_beds_available * 100)|round(1) }}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "_classification.html" %}
+{% include "_regression.html" %}
+{% include "_nlp.html" %}
+{% include "_forecasting.html" %}
+{% include "_optimization.html" %}
+{% include "_history.html" %}
+{% endif %}

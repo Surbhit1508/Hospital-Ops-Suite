@@ -1,0 +1,39 @@
+{% import "_icons.html" as icons %}
+<section id="history" class="bg-white rounded-xl shadow-sm p-5 mb-6 scroll-mt-24">
+    <div class="flex items-center gap-2 mb-1">
+        <span class="bg-slate-100 text-slate-600 rounded-lg p-1.5">{{ icons.icon_history("w-5 h-5") }}</span>
+        <h3 class="font-bold text-slate-800">Run History</h3>
+    </div>
+    <p class="text-xs text-slate-500 mb-3 ml-9">
+        Every pipeline run is logged to SQLite (results/pipeline_runs.db) so results are
+        traceable over time instead of being overwritten silently.
+    </p>
+    {% if run_history %}
+    <table class="w-full text-xs">
+        <thead class="text-left text-slate-500 border-b">
+            <tr>
+                <th class="py-2">Run at (UTC)</th><th>Clf ROC-AUC</th><th>Reg MAE</th>
+                <th>NLP Macro-F1</th><th>Fcst MAE</th><th>Opt Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in run_history %}
+            <tr class="border-b last:border-0 odd:bg-slate-50/60 hover:bg-slate-100/70 transition">
+                <td class="py-2 font-mono text-slate-500">{{ run.run_at }}</td>
+                <td>{{ "%.4f"|format(run.classification_roc_auc) }} <span class="text-slate-400">({{ run.classification_selected_model }})</span></td>
+                <td>{{ "%.3f"|format(run.regression_mae_days) }} <span class="text-slate-400">({{ run.regression_selected_model }})</span></td>
+                <td>{{ "%.4f"|format(run.nlp_macro_f1) }}</td>
+                <td>{{ "%.1f"|format(run.forecasting_mae) }} <span class="text-slate-400">({{ run.forecasting_selected_model }})</span></td>
+                <td>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full font-semibold {{ 'text-emerald-700 bg-emerald-50' if run.optimization_status == 'Optimal' else 'text-rose-700 bg-rose-50' }}">
+                        {{ run.optimization_status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-sm text-slate-400 ml-9">No runs logged yet.</p>
+    {% endif %}
+</section>

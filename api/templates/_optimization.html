@@ -1,0 +1,113 @@
+{% import "_icons.html" as icons %}
+<section id="optimization" class="bg-white rounded-xl shadow-sm p-5 mb-6 scroll-mt-24">
+    <div class="flex items-center gap-2 mb-1">
+        <span class="bg-rose-50 text-rose-600 rounded-lg p-1.5">{{ icons.icon_adjustments("w-5 h-5") }}</span>
+        <h3 class="font-bold text-slate-800">Optimization &mdash; Bed &amp; Staff Allocation</h3>
+        <span class="ml-auto inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full {{ 'text-emerald-700 bg-emerald-50 border border-emerald-200' if optimization.status == 'Optimal' else 'text-rose-700 bg-rose-50 border border-rose-200' }}">
+            {% if optimization.status == "Optimal" %}{{ icons.icon_check("w-3.5 h-3.5") }}{% else %}{{ icons.icon_warning("w-3.5 h-3.5") }}{% endif %}
+            {{ optimization.status }}
+        </span>
+    </div>
+    <p class="text-xs text-slate-500 mb-4 ml-9">
+        Linear program (PuLP): minimize urgency-weighted unmet bed demand across departments,
+        subject to real total-bed and ICU-bed capacity (avg. per-facility, derived from real HHS
+        capacity reporting), with a hard service-floor constraint that Emergency's demand is always
+        fully met. Department case-mix shares come from the NLP classifier's real predictions;
+        length-of-stay per department comes from the real diabetes encounter data; demand pressure
+        comes from the Forecasting module.
+    </p>
+
+    <div class="bg-slate-50/70 rounded-lg p-3 mb-5">
+        <canvas id="optimizationChart" height="110"></canvas>
+    </div>
+
+    <div class="space-y-2.5">
+        {% for dept, d in optimization.departments.items() %}
+        {% set pct = (d.allocated_beds / d.required_beds * 100) if d.required_beds > 0 else 100 %}
+        <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-1.5">
+                    {{ dept }}
+                    {% if d.shortfall_beds > 0 %}
+                    <span class="inline-flex items-center gap-1 text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded-full font-semibold">{{ icons.icon_warning("w-3 h-3") }}-{{ d.shortfall_beds }} beds</span>
+                    {% else %}
+                    <span class="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full font-semibold">{{ icons.icon_check("w-3 h-3") }}met</span>
+                    {% endif %}
+                </span>
+                <span class="text-slate-400">{{ d.allocated_beds }} / {{ d.required_beds }} beds &middot; urgency {{ d.urgency_weight }}</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+                <div class="{{ 'bg-rose-500' if d.shortfall_beds > 0 else 'bg-emerald-500' }} h-2 rounded-full" style="width: {{ pct|round(1) }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <table class="w-full text-sm mt-5">
+        <thead class="text-left text-slate-500 border-b">
+            <tr>
+                <th class="py-2">Department</th><th>Case Mix</th><th>Avg LOS</th>
+                <th>Urgency</th><th>Required</th><th>Allocated</th><th>Shortfall</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dept, d in optimization.departments.items() %}
+            <tr class="border-b last:border-0 odd:bg-slate-50/60 hover:bg-rose-50/40 transition {{ 'text-rose-600 font-semibold' if d.shortfall_beds > 0 else '' }}">
+                <td class="py-2">{{ dept }}</td>
+                <td>{{ "%.1f%%"|format(d.case_mix_share * 100) }}</td>
+                <td>{{ d.avg_length_of_stay_days }}d</td>
+                <td>{{ d.urgency_weight }}</td>
+                <td>{{ d.required_beds }}</td>
+                <td>{{ d.allocated_beds }}</td>
+                <td>{{ d.shortfall_beds }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="text-xs text-slate-500 mt-3">
+        Total capacity: {{ optimization.total_beds_available }} beds /
+        {{ optimization.total_icu_beds_available }} ICU-equivalent beds.
+        Urgency-weighted shortfall objective: {{ optimization.objective_urgency_weighted_shortfall }}.
+    </p>
+    <div class="bg-rose-50/60 border border-rose-100 rounded-lg p-3 mt-3 text-xs text-slate-600">
+        <strong class="text-rose-700">Finding:</strong> this used to show a bed shortfall (Emergency vs. Surgery) &mdash;
+        it turned out to be caused by a biased upstream NLP classifier over-predicting 'Surgery' for 44% of real
+        notes, not a real capacity problem. Fixing the NLP model's class imbalance (see NLP section above)
+        rebalanced the case mix fed into this LP, and the shortage disappeared entirely: every department is
+        now fully served within real capacity (ICU usage ~87%, total beds ~63%). The reasoning that produced the
+        old finding was correct given its inputs &mdash; the inputs themselves were wrong. A pipeline where one
+        model's output feeds another model's decision can silently manufacture a downstream problem that looks
+        completely legitimate until you trace it back upstream. See report/REPORT.md section 6 for the full story.
+    </div>
+</section>
+<script>
+    new Chart(document.getElementById('optimizationChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ optimization_dept_labels|safe }},
+            datasets: [
+                {
+                    label: 'Required beds',
+                    data: {{ optimization_required|safe }},
+                    backgroundColor: 'rgba(244, 63, 94, 0.35)',
+                    borderRadius: 4,
+                },
+                {
+                    label: 'Allocated beds',
+                    data: {{ optimization_allocated|safe }},
+                    backgroundColor: '#e11d48',
+                    borderRadius: 4,
+                },
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'top', labels: { font: { family: 'Inter' } } } },
+            scales: {
+                x: { grid: { display: false }, ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 } },
+                y: { grid: { color: '#e2e8f0' }, title: { display: true, text: 'Beds' } },
+            },
+        }
+    });
+</script>

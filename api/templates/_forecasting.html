@@ -1,0 +1,79 @@
+{% import "_icons.html" as icons %}
+<section id="forecasting" class="bg-white rounded-xl shadow-sm p-5 mb-6 scroll-mt-24">
+    <div class="flex items-center gap-2 mb-1">
+        <span class="bg-amber-50 text-amber-600 rounded-lg p-1.5">{{ icons.icon_trending_up("w-5 h-5") }}</span>
+        <h3 class="font-bold text-slate-800">Forecasting &mdash; Weekly Hospital Admissions</h3>
+    </div>
+    <p class="text-xs text-slate-500 mb-3 ml-9">
+        Real HHS/CDC weekly national COVID-19 hospitalization data (2020-2024), backtested with
+        expanding-window walk-forward validation &mdash; not a single lucky train/test split.
+    </p>
+    <div class="bg-slate-50/70 rounded-lg p-3 mb-4">
+        <canvas id="forecastChart" height="90"></canvas>
+    </div>
+    <table class="w-full text-sm">
+        <thead class="text-left text-slate-500 border-b">
+            <tr><th class="py-2">Method</th><th>MAE</th><th>95% CI</th></tr>
+        </thead>
+        <tbody>
+            {% for name in ["naive", "seasonal_naive", "holt_winters"] %}
+            <tr class="border-b last:border-0 odd:bg-slate-50/60 hover:bg-amber-50/50 transition {{ 'font-semibold text-amber-700' if name == forecasting.selected_model else '' }}">
+                <td class="py-2">
+                    {{ name.replace("_", " ") }}
+                    {% if name == forecasting.selected_model %}
+                    <span class="ml-1 inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold bg-emerald-50 px-1.5 py-0.5 rounded-full">{{ icons.icon_check("w-3 h-3") }}best</span>
+                    {% endif %}
+                </td>
+                <td>{{ "%.1f"|format(forecasting[name].mae) }}</td>
+                <td class="text-slate-400">({{ "%.1f"|format(forecasting[name].mae_ci.ci_low) }}-{{ "%.1f"|format(forecasting[name].mae_ci.ci_high) }})</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="flex items-center gap-2 mt-3 text-xs text-slate-500">
+        <span>{{ forecasting.selected_model.replace("_", " ")|capitalize }} vs. naive MAE difference:
+        {{ "%.1f"|format(forecasting["best_vs_naive_significance"].observed_diff) }}
+        (p = {{ "%.4f"|format(forecasting["best_vs_naive_significance"].p_value) }})</span>
+        {% if forecasting["best_vs_naive_significance"]["significant_at_0.05"] %}
+        <span class="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-medium">{{ icons.icon_check("w-3 h-3") }}significant</span>
+        {% else %}
+        <span class="inline-flex items-center gap-1 text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full font-medium">not significant</span>
+        {% endif %}
+    </div>
+    <div class="bg-amber-50/60 border border-amber-100 rounded-lg p-3 mt-3 text-xs text-slate-600">
+        <strong class="text-amber-700">Finding:</strong> seasonal-naive (repeat last year's pattern) performs far worse than
+        even the plain naive baseline &mdash; COVID admission waves are epidemic-driven, not
+        calendar-periodic, so assuming fixed yearly seasonality actively hurts here. A damped-trend
+        Holt-Winters model, which adapts locally instead of assuming a fixed season, wins and beats
+        naive with p &lt; 0.001. This series is historical/deprecated reporting, used here to
+        demonstrate the backtesting methodology, not as a live forecast of anything happening today.
+    </div>
+</section>
+<script>
+    new Chart(document.getElementById('forecastChart'), {
+        type: 'line',
+        data: {
+            labels: {{ forecast_labels|safe }},
+            datasets: [{
+                label: 'Forecasted weekly admissions (next 8 weeks)',
+                data: {{ forecast_values|safe }},
+                borderColor: '#d97706',
+                backgroundColor: 'rgba(217, 119, 6, 0.12)',
+                pointBackgroundColor: '#d97706',
+                pointRadius: 4,
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { labels: { font: { family: 'Inter' } } } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#e2e8f0' } },
+            },
+        }
+    });
+</script>

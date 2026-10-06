@@ -1,0 +1,43 @@
+{% import "_icons.html" as icons %}
+<section id="nlp" class="bg-white rounded-xl shadow-sm p-5 mb-6 scroll-mt-24">
+    <div class="flex items-center gap-2 mb-1">
+        <span class="bg-emerald-50 text-emerald-600 rounded-lg p-1.5">{{ icons.icon_document("w-5 h-5") }}</span>
+        <h3 class="font-bold text-slate-800">NLP &mdash; Clinical Note Triage</h3>
+    </div>
+    <p class="text-xs text-slate-500 mb-3 ml-9">
+        Real de-identified MTSamples medical transcriptions ({{ nlp.num_train }} train /
+        {{ nlp.num_test }} test), TF-IDF + Linear SVM, {{ nlp.num_classes }}-way specialty
+        classification. Plain vs. class-weighted variants compared to address real class
+        imbalance, selected on a held-out validation split (not the test set).
+    </p>
+    <table class="w-full text-sm">
+        <thead class="text-left text-slate-500 border-b">
+            <tr><th class="py-2">Model</th><th>Test Accuracy</th><th>Test Macro-F1</th></tr>
+        </thead>
+        <tbody>
+            {% for name in ["linear_svm", "linear_svm_balanced"] %}
+            <tr class="border-b last:border-0 odd:bg-slate-50/60 hover:bg-emerald-50/50 transition {{ 'font-semibold text-emerald-700' if name == nlp.selected_model else '' }}">
+                <td class="py-2">
+                    {{ name.replace("_", " ") }}
+                    {% if name == nlp.selected_model %}
+                    <span class="ml-1 inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold bg-emerald-50 px-1.5 py-0.5 rounded-full">{{ icons.icon_check("w-3 h-3") }}best</span>
+                    {% endif %}
+                </td>
+                <td>{{ "%.4f"|format(nlp[name].accuracy) }}</td>
+                <td>{{ "%.4f"|format(nlp[name].macro_f1) }}
+                    <span class="text-slate-400">(95% CI {{ "%.4f"|format(nlp[name].macro_f1_ci.ci_low) }}-{{ "%.4f"|format(nlp[name].macro_f1_ci.ci_high) }})</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="bg-emerald-50/60 border border-emerald-100 rounded-lg p-3 mt-4 text-xs text-slate-600">
+        <strong class="text-emerald-700">Honest caveat:</strong> 40 real-world specialty classes with severe class imbalance
+        (some specialties have only a handful of examples) make this a genuinely hard task. We tried
+        <code class="bg-white px-1 rounded">class_weight="balanced"</code> rather than just noting the imbalance as a
+        limitation &mdash; whichever variant actually won on validation is deployed above; the modest macro-F1
+        either way reflects the task's real difficulty, not a bug. Also note the urgency scores used
+        downstream in Optimization are a documented heuristic, not a trained/validated model (MTSamples
+        has no ground-truth urgency label).
+    </div>
+</section>

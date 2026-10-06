@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hospital Operations Intelligence Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        html { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; scroll-behavior: smooth; }
+        .htmx-indicator { display: none; }
+        .htmx-request.htmx-indicator, .htmx-request .htmx-indicator { display: block; }
+        .htmx-request #run-pipeline-btn { opacity: 0.6; pointer-events: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    {% import "_icons.html" as icons %}
+
+    <header class="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 text-white">
+        <div class="max-w-6xl mx-auto px-6 py-7 flex items-start gap-4">
+            <div class="bg-white/10 rounded-xl p-2.5 shrink-0">
+                {{ icons.icon_hospital("w-7 h-7 text-indigo-300") }}
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">Hospital Operations Intelligence Suite</h1>
+                <p class="text-slate-300 mt-1 text-sm max-w-3xl">
+                    Classification &middot; Regression &middot; NLP &middot; Forecasting &middot; Optimization &mdash;
+                    one pipeline, real public healthcare data, statistically validated at every step.
+                </p>
+            </div>
+        </div>
+        <nav class="border-t border-white/10 bg-black/20">
+            <div class="max-w-6xl mx-auto px-6 flex gap-1 overflow-x-auto text-sm">
+                <a href="#classification" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">Classification</a>
+                <a href="#regression" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">Regression</a>
+                <a href="#nlp" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">NLP</a>
+                <a href="#forecasting" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">Forecasting</a>
+                <a href="#optimization" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">Optimization</a>
+                <a href="#history" class="px-3 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 whitespace-nowrap">Run History</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <div id="dashboard-content">
+            {% include "dashboard_content.html" %}
+        </div>
+    </main>
+
+    <footer class="border-t border-slate-200 mt-4">
+        <div class="max-w-6xl mx-auto px-6 py-6 text-xs text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span class="font-medium text-slate-500">Data sources:</span>
+            <span>UCI Diabetes 130-US Hospitals (1999-2008)</span>
+            <span class="text-slate-300">&middot;</span>
+            <span>MTSamples medical transcriptions</span>
+            <span class="text-slate-300">&middot;</span>
+            <span>HHS/CDC weekly COVID-19 hospitalization metrics</span>
+            <span class="text-slate-300">&middot;</span>
+            <span>All real, all public &mdash; see <code>report/REPORT.md</code> for full methodology and honest limitations.</span>
+        </div>
+    </footer>
+</body>
+</html>
